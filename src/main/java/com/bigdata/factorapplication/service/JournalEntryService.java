@@ -22,10 +22,13 @@ public class JournalEntryService {
     private UserEntryService userEntryService;
 
     @Transactional
-    public void saveEntry(JournalEntity   journalEntity,String username) {
+    public void saveNewEntry(JournalEntity   journalEntity, String username) {
 
 
         try{UserEntity user = userEntryService.getUserByName(username);
+            if (user == null) {
+                throw new RuntimeException("User not found: " + username);
+            }
             journalEntity.setDate(LocalDateTime.now());
             JournalEntity saved = journalEntryRepository.save(journalEntity);
             user.getJournalEntities().add(saved);
@@ -54,22 +57,30 @@ public class JournalEntryService {
 
         return journalEntryRepository.findById(myId);
     }
-    public JournalEntity deleteByID(ObjectId myId, String username) {
 
-        //2. Delete it
-        UserEntity user = userEntryService.getUserByName(username);
-
-        user.getJournalEntities().removeIf(x -> x.getId().equals(myId));
-        userEntryService.saveUser(user);
-        JournalEntity checKEntry = journalEntryRepository.findById(myId).orElse(null);
-        if (checKEntry != null) {
-            journalEntryRepository.deleteById(myId);
+    @Transactional
+    public void deleteByID(ObjectId myId, String username) {
 
 
+        try {
+            //2. Delete it
+            UserEntity user = userEntryService.getUserByName(username);
+            boolean st = user.getJournalEntities().removeIf(x -> x.getId().equals(myId));
+
+            if (st == true) {
+
+                userEntryService.saveNewUser(user);
+                journalEntryRepository.deleteById(myId);
+            }
+        }
+        catch (Exception e) {
+
+            System.out.println(e);
+            throw new RuntimeException(e);
         }
 
-// 3. Return the object we found
-        return checKEntry;
+
+
     }
 
 

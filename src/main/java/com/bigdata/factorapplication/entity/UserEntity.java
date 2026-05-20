@@ -24,10 +24,8 @@ public class UserEntity {
      private String username;
     @NonNull
     private String password;
+    private List<String> roles = new ArrayList<>();
 
     @DBRef
     private List<JournalEntity> journalEntities=new ArrayList<>();
-
-
-
 }
