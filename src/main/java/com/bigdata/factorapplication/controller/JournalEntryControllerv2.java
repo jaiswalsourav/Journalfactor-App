@@ -50,21 +50,12 @@ public class JournalEntryControllerv2 {
 
         
 
-       try{
-
            System.out.println("API HIT");
            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
            String username = authentication.getName();
            journalEntryService.saveNewEntry(newJournalEntry,username);
            System.out.println("API HIT after save entry");
            return new ResponseEntity<>(newJournalEntry,HttpStatus.CREATED);
-       }
-       catch (Exception e) {
-
-           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-       }
-
-
     }
 
     @GetMapping("/id/{myId}")
@@ -84,20 +75,25 @@ public class JournalEntryControllerv2 {
     }
 
     @DeleteMapping("/id/{myId}")
-    public ResponseEntity<JournalEntity> deleteJournalEntryById(@PathVariable ObjectId myId) {
+    public ResponseEntity<?> deleteJournalEntryById(@PathVariable ObjectId myId) {
         System.out.println("DELETE API  HIT");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-         journalEntryService.deleteByID(myId,username);
+         boolean removed=journalEntryService.deleteByID(myId,username);
 
        /* if (deletedEntry != null) {
             return new ResponseEntity<>(HttpStatus.OK);
         }*/
+         if(removed) {
+             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+         }
+         else {
+             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+         }
 
-       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     @PutMapping("/id/{myId}")
-    public ResponseEntity<JournalEntity> updateEntry(@PathVariable ObjectId myId,
+    public ResponseEntity<?> updateEntry(@PathVariable ObjectId myId,
                                                      @RequestBody JournalEntity newJournalEntry) {
 
        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

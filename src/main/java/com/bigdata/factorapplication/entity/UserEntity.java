@@ -1,5 +1,6 @@
 package com.bigdata.factorapplication.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.List;
 @Document(collection = "user_login")
 @Getter
 @Setter
+
 public class UserEntity {
 
     @Id

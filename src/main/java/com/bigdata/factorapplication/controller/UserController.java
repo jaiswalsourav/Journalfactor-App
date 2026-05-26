@@ -42,11 +42,11 @@ public class UserController {
          Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
            String username = authentication.getName();
             System.out.println("dwiiwiiw");
-       UserEntity oldUser= userEntryService.getUserByName(user.getUsername());
-       if(oldUser!=null){
+          UserEntity oldUser= userEntryRepository.findByUsername(username);
+          if(oldUser!=null){
            oldUser.setUsername(user.getUsername());
            oldUser.setPassword(user.getPassword());
-           userEntryService.saveNewUser(oldUser);
+           userEntryService.saveUser(oldUser);
            return  new ResponseEntity<>(HttpStatus.OK);
        }
 

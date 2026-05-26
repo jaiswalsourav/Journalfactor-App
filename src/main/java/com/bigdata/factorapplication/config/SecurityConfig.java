@@ -22,9 +22,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/journal").permitAll()
-                        .requestMatchers("/usercheck").permitAll()
+                        .requestMatchers("/adminuser/**").hasRole("ADMIN")
+                        //
+
                         .requestMatchers("/publicController/**").permitAll()
+                        //.requestMatchers(HttpMethod.POST,"/publicController/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());

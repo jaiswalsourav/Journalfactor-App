@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,10 +26,28 @@ public class UserEntryService {
 
     public void saveNewUser(UserEntity user) {
 
+        if (userEntryRepository.findByUsername(user.getUsername()) != null) {
+            throw new RuntimeException("Username already exists");
+        }
+
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRoles(Collections.singletonList("USER"));
         UserEntity saved = userEntryRepository.save(user);
         //return "User Created Successfully";
+
+    }
+
+    public void saveNewAdminUser(UserEntity user) {
+
+        if (userEntryRepository.findByUsername(user.getUsername()) != null) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        user.setPassword(encoder.encode(user.getPassword()));
+        user.setRoles(Arrays.asList("USER", "ADMIN"));
+        UserEntity saved = userEntryRepository.save(user);
+        //return "User Created Successfully";
+
     }
     public String saveUser(UserEntity user) {
 
@@ -39,6 +58,11 @@ public class UserEntryService {
     public UserEntity getUserByName(String userName) {
 
         return userEntryRepository.findByUsername(userName);
+    }
+
+    public List<UserEntity> getAll()
+    {
+        return userEntryRepository.findAll();
     }
 
 

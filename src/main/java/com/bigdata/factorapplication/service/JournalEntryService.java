@@ -2,6 +2,7 @@ package com.bigdata.factorapplication.service;
 
 import com.bigdata.factorapplication.entity.JournalEntity;
 import com.bigdata.factorapplication.entity.UserEntity;
+import com.bigdata.factorapplication.exception.ResourceNotFoundException;
 import com.bigdata.factorapplication.repositry.JournalEntryRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,21 +25,16 @@ public class JournalEntryService {
     @Transactional
     public void saveNewEntry(JournalEntity   journalEntity, String username) {
 
-
-        try{UserEntity user = userEntryService.getUserByName(username);
-            if (user == null) {
-                throw new RuntimeException("User not found: " + username);
-            }
-            journalEntity.setDate(LocalDateTime.now());
-            JournalEntity saved = journalEntryRepository.save(journalEntity);
-            user.getJournalEntities().add(saved);
-            userEntryService.saveUser(user);
-
-            System.out.println(saved.getId());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        UserEntity user = userEntryService.getUserByName(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found: " + username);
         }
+        journalEntity.setDate(LocalDateTime.now());
+        JournalEntity saved = journalEntryRepository.save(journalEntity);
+        user.getJournalEntities().add(saved);
+        userEntryService.saveUser(user);
 
+        System.out.println(saved.getId());
     }
     public void saveEntry(JournalEntity   journalEntity) {
 
@@ -59,28 +55,22 @@ public class JournalEntryService {
     }
 
     @Transactional
-    public void deleteByID(ObjectId myId, String username) {
+    public boolean deleteByID(ObjectId myId, String username) {
 
-
-        try {
-            //2. Delete it
-            UserEntity user = userEntryService.getUserByName(username);
-            boolean st = user.getJournalEntities().removeIf(x -> x.getId().equals(myId));
-
-            if (st == true) {
-
-                userEntryService.saveNewUser(user);
-                journalEntryRepository.deleteById(myId);
-            }
+          boolean st =false;
+        UserEntity user = userEntryService.getUserByName(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found: " + username);
         }
-        catch (Exception e) {
+        st = user.getJournalEntities().removeIf(x -> x.getId().equals(myId));
 
-            System.out.println(e);
-            throw new RuntimeException(e);
+        if (st) {
+
+            userEntryService.saveUser(user);
+            journalEntryRepository.deleteById(myId);
         }
 
-
-
+        return st;
     }
 
 
